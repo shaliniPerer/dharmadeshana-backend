@@ -33,7 +33,7 @@ exports.createMessage = async (req, res) => {
     `;
 
     await sendEmail({
-      email: 'shalinirvithanage@gmail.com',
+      email: process.env.EMAIL_USER, // Send notification to Admin email
       subject: `New Message from ${name} - Dharmadeshana`,
       message: `New message from ${name}: ${message}`,
       html: emailContent

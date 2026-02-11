@@ -49,7 +49,7 @@ exports.createEvent = async (req, res) => {
       `;
 
       await sendEmail({
-        email: 'shalinirvithanage@gmail.com',
+        email: process.env.EMAIL_USER, // Send notification to Admin email
         subject: 'New Event Submission - Dharmadeshana',
         message: `New Event from ${submitterPhone}: ${eventName} by ${theroName}`,
         html: emailContent

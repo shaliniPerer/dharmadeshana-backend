@@ -48,7 +48,7 @@ exports.createDanweem = async (req, res) => {
       `;
 
       await sendEmail({
-        email: 'shalinirvithanage@gmail.com',
+        email: process.env.EMAIL_USER, // Send notification to Admin email
         subject: 'New Danweem Submission - Dharmadeshana',
         message: `New Danweem from ${phoneNumber}: ${title}`,
         html: emailContent
