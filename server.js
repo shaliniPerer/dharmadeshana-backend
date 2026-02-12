@@ -19,7 +19,7 @@ const app = express();
 app.use(cors({
   origin: [
     process.env.FRONTEND_URL || "https://dharmadeshana.lk",
-    process.env.ADMIN_FRONTEND_URL || "http://localhost:3001"
+    process.env.ADMIN_FRONTEND_URL || 'https://admin.dharmadeshana.lk'
   ],
   methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
    allowedHeaders: ["Content-Type", "Authorization"], // important!
