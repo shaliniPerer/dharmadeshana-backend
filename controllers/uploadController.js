@@ -1,12 +1,13 @@
-// Use local storage for development
+// Import both local and S3 storage
 const { uploadToLocal, uploadMultipleToLocal } = require('../utils/localStorage');
+const { uploadToS3, uploadMultipleToS3 } = require('../utils/s3Upload');
 
-// For production with S3 (uncomment when needed)
-// const { uploadToS3, uploadMultipleToS3 } = require('../utils/s3Upload');
+// Determine which storage to use based on environment
+const USE_S3 = process.env.USE_S3 === 'true' || process.env.NODE_ENV === 'production';
 
-// Alias for easy switching
-const uploadFile = uploadToLocal;
-const uploadMultipleFiles = uploadMultipleToLocal;
+// Alias for easy switching between local and S3 storage
+const uploadFile = USE_S3 ? uploadToS3 : uploadToLocal;
+const uploadMultipleFiles = USE_S3 ? uploadMultipleToS3 : uploadMultipleToLocal;
 
 /**
  * Upload a single file

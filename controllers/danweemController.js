@@ -1,6 +1,18 @@
 const Danweem = require("../models/Danweem");
 const sendEmail = require("../utils/email");
 
+// Helper to prepend full URL to media (only for relative paths, not full URLs)
+const prependBaseUrl = (url) => {
+  if (!url) return null;
+  // If already a full URL (S3 or external), return as-is
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return url;
+  }
+  // Otherwise prepend BASE_URL for local storage
+  const BASE_URL = process.env.BASE_URL || "http://localhost:5000";
+  return `${BASE_URL}${url}`;
+};
+
 // Create new danweem submission
 exports.createDanweem = async (req, res) => {
   try {
@@ -75,14 +87,11 @@ exports.getUserDanweem = async (req, res) => {
     const phoneNumber = req.user.phoneNumber;
     const danweem = await Danweem.getByUser(phoneNumber);
 
-    // Prepend BASE_URL to media paths
-    const BASE_URL = process.env.BASE_URL || "http://localhost:5000";
-
     const danweemWithFullUrls = danweem.map(d => ({
       ...d.toObject ? d.toObject() : d,
-      mediaUrl: d.mediaUrl ? `${BASE_URL}${d.mediaUrl}` : null,
-      thumbnailUrl: d.thumbnailUrl ? `${BASE_URL}${d.thumbnailUrl}` : null,
-      proofDocumentUrl: d.proofDocumentUrl ? `${BASE_URL}${d.proofDocumentUrl}` : null,
+      mediaUrl: prependBaseUrl(d.mediaUrl),
+      thumbnailUrl: prependBaseUrl(d.thumbnailUrl),
+      proofDocumentUrl: prependBaseUrl(d.proofDocumentUrl),
     }));
 
     return res.status(200).json({
@@ -103,14 +112,11 @@ exports.getApprovedDanweem = async (req, res) => {
   try {
     const danweem = await Danweem.getByStatus("approved");
 
-    // Prepend BASE_URL to media paths
-    const BASE_URL = process.env.BASE_URL || "http://localhost:5000";
-
     const danweemWithFullUrls = danweem.map(d => ({
       ...d.toObject ? d.toObject() : d, // in case it's a Mongoose doc
-      mediaUrl: d.mediaUrl ? `${BASE_URL}${d.mediaUrl}` : null,
-      thumbnailUrl: d.thumbnailUrl ? `${BASE_URL}${d.thumbnailUrl}` : null,
-      proofDocumentUrl: d.proofDocumentUrl ? `${BASE_URL}${d.proofDocumentUrl}` : null,
+      mediaUrl: prependBaseUrl(d.mediaUrl),
+      thumbnailUrl: prependBaseUrl(d.thumbnailUrl),
+      proofDocumentUrl: prependBaseUrl(d.proofDocumentUrl),
     }));
 
     return res.status(200).json({
@@ -132,14 +138,11 @@ exports.getPendingDanweem = async (req, res) => {
   try {
     const danweem = await Danweem.getByStatus("pending");
 
-    // Prepend BASE_URL to media paths
-    const BASE_URL = process.env.BASE_URL || "http://localhost:5000";
-
     const danweemWithFullUrls = danweem.map(d => ({
       ...d.toObject ? d.toObject() : d,
-      mediaUrl: d.mediaUrl ? `${BASE_URL}${d.mediaUrl}` : null,
-      thumbnailUrl: d.thumbnailUrl ? `${BASE_URL}${d.thumbnailUrl}` : null,
-      proofDocumentUrl: d.proofDocumentUrl ? `${BASE_URL}${d.proofDocumentUrl}` : null,
+      mediaUrl: prependBaseUrl(d.mediaUrl),
+      thumbnailUrl: prependBaseUrl(d.thumbnailUrl),
+      proofDocumentUrl: prependBaseUrl(d.proofDocumentUrl),
     }));
 
     return res.status(200).json({
@@ -160,14 +163,11 @@ exports.getAllDanweem = async (req, res) => {
   try {
     const danweem = await Danweem.getAll();
 
-    // Prepend BASE_URL to media paths
-    const BASE_URL = process.env.BASE_URL || "http://localhost:5000";
-
     const danweemWithFullUrls = danweem.map(d => ({
       ...d.toObject ? d.toObject() : d,
-      mediaUrl: d.mediaUrl ? `${BASE_URL}${d.mediaUrl}` : null,
-      thumbnailUrl: d.thumbnailUrl ? `${BASE_URL}${d.thumbnailUrl}` : null,
-      proofDocumentUrl: d.proofDocumentUrl ? `${BASE_URL}${d.proofDocumentUrl}` : null,
+      mediaUrl: prependBaseUrl(d.mediaUrl),
+      thumbnailUrl: prependBaseUrl(d.thumbnailUrl),
+      proofDocumentUrl: prependBaseUrl(d.proofDocumentUrl),
     }));
 
     return res.status(200).json({

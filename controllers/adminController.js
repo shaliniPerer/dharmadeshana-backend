@@ -2,10 +2,16 @@ const Event = require("../models/Event");
 const User = require("../models/User");
 const Danweem = require("../models/Danweem");
 
-// Helper to prepend full URL to media
+// Helper to prepend full URL to media (only for relative paths, not full URLs)
 const prependBaseUrl = (url) => {
+  if (!url) return null;
+  // If already a full URL (S3 or external), return as-is
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return url;
+  }
+  // Otherwise prepend BASE_URL for local storage
   const BASE_URL = process.env.BASE_URL || "http://localhost:5000";
-  return url ? `${BASE_URL}${url}` : null;
+  return `${BASE_URL}${url}`;
 };
 
 exports.getPendingEvents = async (req, res) => {
