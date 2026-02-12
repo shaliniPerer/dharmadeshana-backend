@@ -15,25 +15,29 @@ const app = express();
 
 const allowedOrigins = [
   process.env.FRONTEND_URL || "https://dharmadeshana.lk",
-  process.env.ADMIN_FRONTEND_URL || "https://admin.dharmadeshana.lk"
+  process.env.ADMIN_FRONTEND_URL || "https://admin.dharmadeshana.lk",
+  "https://www.dharmadeshana.lk",
+  "https://www.admin.dharmadeshana.lk"
 ];
 
-app.use((req, res, next) => {
-  const origin = req.headers.origin;
+app.use(cors({
+  origin: function(origin, callback) {
+    // allow requests from Postman, curl, server-to-server (no origin)
+    if (!origin) return callback(null, true);
 
-  if (!origin || allowedOrigins.includes(origin)) {
-    // If origin is allowed, use cors normally
-    cors({
-      origin: origin || "*", // allow requests with no origin (curl, Postman)
-      credentials: true,
-      methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-      allowedHeaders: ["Content-Type", "Authorization"]
-    })(req, res, next);
-  } else {
-    // Origin not allowed → respond 403, do NOT crash
+    // allow if origin matches any in the allowed list
+    if (allowedOrigins.some(o => o.toLowerCase() === origin.toLowerCase())) {
+      return callback(null, true);
+    }
+
+    console.warn(`Blocked CORS request from origin: ${origin}`);
+    // instead of throwing Error, respond with 403
     res.status(403).json({ success: false, message: "CORS not allowed for this origin" });
-  }
-});
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
 
 // Handle preflight OPTIONS globally
 app.options("*", cors({
@@ -43,9 +47,6 @@ app.options("*", cors({
   allowedHeaders: ["Content-Type", "Authorization"]
 }));
 
-
-// REQUIRED for preflight
-app.options("*", cors());
 
 // --------------------
 // Middleware
