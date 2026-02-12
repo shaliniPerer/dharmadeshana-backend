@@ -22,6 +22,7 @@ app.use(cors({
     process.env.ADMIN_FRONTEND_URL || "http://localhost:3001"
   ],
   methods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+   allowedHeaders: ["Content-Type", "Authorization"], // important!
   credentials: true, // allow cookies / authorization headers
 }));
 
