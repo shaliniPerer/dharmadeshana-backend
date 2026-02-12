@@ -1,11 +1,17 @@
 const Event = require("../models/Event");
 const sendEmail = require("../utils/email");
 
+// Helper to prepend full URL to media
+const prependBaseUrl = (url) => {
+  const BASE_URL = process.env.BASE_URL || "http://localhost:5000";
+  return url ? `${BASE_URL}${url}` : null;
+};
+
+// Create new event
 exports.createEvent = async (req, res) => {
   try {
     const { theroName, eventName, date, time, venue, imageUrl, description, sanwidanaya, proofDocumentUrl } = req.body;
 
-    // Validation
     if (!theroName || !eventName || !date || !time || !venue || !imageUrl) {
       return res.status(400).json({
         success: false,
@@ -24,8 +30,8 @@ exports.createEvent = async (req, res) => {
       venue,
       imageUrl,
       description: description || "",
-      sanwidanaya: sanwidanaya || "", // Event poster/announcement
-      proofDocumentUrl: proofDocumentUrl || "", // Proof document
+      sanwidanaya: sanwidanaya || "",
+      proofDocumentUrl: proofDocumentUrl || "",
       submitterPhone,
       submitterName: isAdmin ? "Admin" : "Member",
       status: isAdmin ? "approved" : "pending",
@@ -33,7 +39,7 @@ exports.createEvent = async (req, res) => {
 
     const event = await Event.create(eventData);
 
-    // Send email notification to Admin if it's a user submission
+    // Send email notification if user submitted
     if (!isAdmin) {
       const emailContent = `
         <h2>New Dharmadeshana (Event) Submitted</h2>
@@ -49,17 +55,25 @@ exports.createEvent = async (req, res) => {
       `;
 
       await sendEmail({
-        email: process.env.EMAIL_USER, // Send notification to Admin email
+        email: process.env.EMAIL_USER,
         subject: 'New Event Submission - Dharmadeshana',
         message: `New Event from ${submitterPhone}: ${eventName} by ${theroName}`,
         html: emailContent
       });
     }
 
+    // Prepend BASE_URL for frontend display
+    const eventWithFullUrls = {
+      ...event.toObject ? event.toObject() : event,
+      imageUrl: prependBaseUrl(event.imageUrl),
+      sanwidanaya: prependBaseUrl(event.sanwidanaya),
+      proofDocumentUrl: prependBaseUrl(event.proofDocumentUrl),
+    };
+
     return res.status(201).json({
       success: true,
       message: isAdmin ? "Event created and approved" : "Event submitted for approval",
-      event,
+      event: eventWithFullUrls,
     });
   } catch (error) {
     console.error("Create Event Error:", error);
@@ -70,13 +84,21 @@ exports.createEvent = async (req, res) => {
   }
 };
 
+// Get all approved events (public)
 exports.getApprovedEvents = async (req, res) => {
   try {
     const events = await Event.getByStatus("approved");
 
+    const eventsWithFullUrls = events.map(e => ({
+      ...e.toObject ? e.toObject() : e,
+      imageUrl: prependBaseUrl(e.imageUrl),
+      sanwidanaya: prependBaseUrl(e.sanwidanaya),
+      proofDocumentUrl: prependBaseUrl(e.proofDocumentUrl),
+    }));
+
     return res.status(200).json({
       success: true,
-      events,
+      events: eventsWithFullUrls,
     });
   } catch (error) {
     console.error("Get Events Error:", error);
@@ -87,13 +109,21 @@ exports.getApprovedEvents = async (req, res) => {
   }
 };
 
+// Get user's own events
 exports.getUserEvents = async (req, res) => {
   try {
     const events = await Event.getBySubmitter(req.user.phoneNumber);
 
+    const eventsWithFullUrls = events.map(e => ({
+      ...e.toObject ? e.toObject() : e,
+      imageUrl: prependBaseUrl(e.imageUrl),
+      sanwidanaya: prependBaseUrl(e.sanwidanaya),
+      proofDocumentUrl: prependBaseUrl(e.proofDocumentUrl),
+    }));
+
     return res.status(200).json({
       success: true,
-      events,
+      events: eventsWithFullUrls,
     });
   } catch (error) {
     console.error("Get User Events Error:", error);
@@ -104,6 +134,7 @@ exports.getUserEvents = async (req, res) => {
   }
 };
 
+// Get event by ID
 exports.getEventById = async (req, res) => {
   try {
     const { eventId } = req.params;
@@ -116,9 +147,16 @@ exports.getEventById = async (req, res) => {
       });
     }
 
+    const eventWithFullUrls = {
+      ...event.toObject ? event.toObject() : event,
+      imageUrl: prependBaseUrl(event.imageUrl),
+      sanwidanaya: prependBaseUrl(event.sanwidanaya),
+      proofDocumentUrl: prependBaseUrl(event.proofDocumentUrl),
+    };
+
     return res.status(200).json({
       success: true,
-      event,
+      event: eventWithFullUrls,
     });
   } catch (error) {
     console.error("Get Event Error:", error);

@@ -93,9 +93,19 @@ exports.getApprovedDanweem = async (req, res) => {
   try {
     const danweem = await Danweem.getByStatus("approved");
 
+    // Prepend BASE_URL to media paths
+    const BASE_URL = process.env.BASE_URL || "http://localhost:5000";
+
+    const danweemWithFullUrls = danweem.map(d => ({
+      ...d.toObject ? d.toObject() : d, // in case it's a Mongoose doc
+      mediaUrl: d.mediaUrl ? `${BASE_URL}${d.mediaUrl}` : null,
+      thumbnailUrl: d.thumbnailUrl ? `${BASE_URL}${d.thumbnailUrl}` : null,
+      proofDocumentUrl: d.proofDocumentUrl ? `${BASE_URL}${d.proofDocumentUrl}` : null,
+    }));
+
     return res.status(200).json({
       success: true,
-      danweem,
+      danweem: danweemWithFullUrls,
     });
   } catch (error) {
     console.error("Get Approved Danweem Error:", error);
@@ -105,6 +115,7 @@ exports.getApprovedDanweem = async (req, res) => {
     });
   }
 };
+
 
 // Get pending danweem (admin only)
 exports.getPendingDanweem = async (req, res) => {
