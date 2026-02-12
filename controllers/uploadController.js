@@ -17,17 +17,24 @@ const uploadMultipleFiles = USE_S3 ? uploadMultipleToS3 : uploadMultipleToLocal;
  */
 const uploadSingle = async (req, res) => {
   try {
+    console.log('Upload attempt - USE_S3:', process.env.USE_S3);
+    console.log('Upload function being used:', USE_S3 ? 'S3' : 'Local');
+    
     if (!req.file) {
       return res.status(400).json({ message: 'No file uploaded' });
     }
 
     const folder = req.query.folder || 'uploads';
+    console.log('Uploading to folder:', folder);
+    
     const fileUrl = await uploadFile(
       req.file.buffer,
       req.file.originalname,
       req.file.mimetype,
       folder
     );
+
+    console.log('Upload successful, URL:', fileUrl);
 
     res.status(200).json({
       message: 'File uploaded successfully',
@@ -37,10 +44,16 @@ const uploadSingle = async (req, res) => {
       fileSize: req.file.size,
     });
   } catch (error) {
-    console.error('Upload Error:', error);
+    console.error('Upload Error Details:', {
+      message: error.message,
+      stack: error.stack,
+      USE_S3: process.env.USE_S3,
+      NODE_ENV: process.env.NODE_ENV
+    });
     res.status(500).json({ 
       message: 'Failed to upload file',
-      error: error.message 
+      error: error.message,
+      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
     });
   }
 };

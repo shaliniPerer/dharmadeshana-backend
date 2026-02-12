@@ -79,6 +79,34 @@ class Event {
     );
   }
 
+  static async update(eventId, updates) {
+    const updateExpressions = [];
+    const expressionAttributeNames = {};
+    const expressionAttributeValues = { ":time": Date.now() };
+
+    Object.keys(updates).forEach((key) => {
+      if (updates[key] !== undefined) {
+        updateExpressions.push(`#${key} = :${key}`);
+        expressionAttributeNames[`#${key}`] = key;
+        expressionAttributeValues[`:${key}`] = updates[key];
+      }
+    });
+
+    if (updateExpressions.length > 0) {
+      updateExpressions.push("updatedAt = :time");
+      
+      await dynamodb.send(
+        new UpdateCommand({
+          TableName: "dharma_events",
+          Key: { eventId },
+          UpdateExpression: `SET ${updateExpressions.join(", ")}`,
+          ExpressionAttributeNames: expressionAttributeNames,
+          ExpressionAttributeValues: expressionAttributeValues,
+        })
+      );
+    }
+  }
+
   static async delete(eventId) {
     await dynamodb.send(
       new DeleteCommand({

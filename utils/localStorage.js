@@ -20,27 +20,42 @@ if (!fs.existsSync(UPLOADS_DIR)) {
  */
 const uploadToLocal = async (fileBuffer, originalName, mimetype, folder = 'uploads') => {
   try {
+    console.log('Local upload starting:', { originalName, mimetype, folder });
+    
     // Create folder if it doesn't exist
     const folderPath = path.join(UPLOADS_DIR, folder);
+    console.log('Creating folder if not exists:', folderPath);
+    
     if (!fs.existsSync(folderPath)) {
       fs.mkdirSync(folderPath, { recursive: true });
+      console.log('Folder created:', folderPath);
     }
 
     // Generate unique filename
     const fileExtension = path.extname(originalName);
     const fileName = `${uuidv4()}${fileExtension}`;
     const filePath = path.join(folderPath, fileName);
+    
+    console.log('Writing file to:', filePath);
 
     // Write file to disk
     await fs.promises.writeFile(filePath, fileBuffer);
+    
+    console.log('File written successfully');
 
     // Return the relative URL path (controllers will prepend BASE_URL when needed)
     const fileUrl = `/uploads/${folder}/${fileName}`;
     
+    console.log('Returning URL:', fileUrl);
     return fileUrl;
   } catch (error) {
-    console.error('Local Storage Upload Error:', error);
-    throw new Error('Failed to upload file to local storage');
+    console.error('Local Storage Upload Error:', {
+      message: error.message,
+      stack: error.stack,
+      originalName,
+      folder
+    });
+    throw new Error(`Failed to upload file to local storage: ${error.message}`);
   }
 };
 
