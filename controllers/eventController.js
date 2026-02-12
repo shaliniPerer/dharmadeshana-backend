@@ -66,7 +66,6 @@ exports.createEvent = async (req, res) => {
     const eventWithFullUrls = {
       ...event.toObject ? event.toObject() : event,
       imageUrl: prependBaseUrl(event.imageUrl),
-      sanwidanaya: prependBaseUrl(event.sanwidanaya),
       proofDocumentUrl: prependBaseUrl(event.proofDocumentUrl),
     };
 
@@ -92,7 +91,6 @@ exports.getApprovedEvents = async (req, res) => {
     const eventsWithFullUrls = events.map(e => ({
       ...e.toObject ? e.toObject() : e,
       imageUrl: prependBaseUrl(e.imageUrl),
-      sanwidanaya: prependBaseUrl(e.sanwidanaya),
       proofDocumentUrl: prependBaseUrl(e.proofDocumentUrl),
     }));
 
@@ -117,7 +115,6 @@ exports.getUserEvents = async (req, res) => {
     const eventsWithFullUrls = events.map(e => ({
       ...e.toObject ? e.toObject() : e,
       imageUrl: prependBaseUrl(e.imageUrl),
-      sanwidanaya: prependBaseUrl(e.sanwidanaya),
       proofDocumentUrl: prependBaseUrl(e.proofDocumentUrl),
     }));
 
@@ -150,7 +147,6 @@ exports.getEventById = async (req, res) => {
     const eventWithFullUrls = {
       ...event.toObject ? event.toObject() : event,
       imageUrl: prependBaseUrl(event.imageUrl),
-      sanwidanaya: prependBaseUrl(event.sanwidanaya),
       proofDocumentUrl: prependBaseUrl(event.proofDocumentUrl),
     };
 

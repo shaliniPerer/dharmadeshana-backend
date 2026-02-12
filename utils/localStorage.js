@@ -34,7 +34,7 @@ const uploadToLocal = async (fileBuffer, originalName, mimetype, folder = 'uploa
     // Write file to disk
     await fs.promises.writeFile(filePath, fileBuffer);
 
-    // Return the relative URL path (controllers will add BASE_URL when needed)
+    // Return the relative URL path (controllers will prepend BASE_URL when needed)
     const fileUrl = `/uploads/${folder}/${fileName}`;
     
     return fileUrl;

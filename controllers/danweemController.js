@@ -75,9 +75,19 @@ exports.getUserDanweem = async (req, res) => {
     const phoneNumber = req.user.phoneNumber;
     const danweem = await Danweem.getByUser(phoneNumber);
 
+    // Prepend BASE_URL to media paths
+    const BASE_URL = process.env.BASE_URL || "http://localhost:5000";
+
+    const danweemWithFullUrls = danweem.map(d => ({
+      ...d.toObject ? d.toObject() : d,
+      mediaUrl: d.mediaUrl ? `${BASE_URL}${d.mediaUrl}` : null,
+      thumbnailUrl: d.thumbnailUrl ? `${BASE_URL}${d.thumbnailUrl}` : null,
+      proofDocumentUrl: d.proofDocumentUrl ? `${BASE_URL}${d.proofDocumentUrl}` : null,
+    }));
+
     return res.status(200).json({
       success: true,
-      danweem,
+      danweem: danweemWithFullUrls,
     });
   } catch (error) {
     console.error("Get User Danweem Error:", error);
@@ -122,9 +132,19 @@ exports.getPendingDanweem = async (req, res) => {
   try {
     const danweem = await Danweem.getByStatus("pending");
 
+    // Prepend BASE_URL to media paths
+    const BASE_URL = process.env.BASE_URL || "http://localhost:5000";
+
+    const danweemWithFullUrls = danweem.map(d => ({
+      ...d.toObject ? d.toObject() : d,
+      mediaUrl: d.mediaUrl ? `${BASE_URL}${d.mediaUrl}` : null,
+      thumbnailUrl: d.thumbnailUrl ? `${BASE_URL}${d.thumbnailUrl}` : null,
+      proofDocumentUrl: d.proofDocumentUrl ? `${BASE_URL}${d.proofDocumentUrl}` : null,
+    }));
+
     return res.status(200).json({
       success: true,
-      danweem,
+      danweem: danweemWithFullUrls,
     });
   } catch (error) {
     console.error("Get Pending Danweem Error:", error);
@@ -140,9 +160,19 @@ exports.getAllDanweem = async (req, res) => {
   try {
     const danweem = await Danweem.getAll();
 
+    // Prepend BASE_URL to media paths
+    const BASE_URL = process.env.BASE_URL || "http://localhost:5000";
+
+    const danweemWithFullUrls = danweem.map(d => ({
+      ...d.toObject ? d.toObject() : d,
+      mediaUrl: d.mediaUrl ? `${BASE_URL}${d.mediaUrl}` : null,
+      thumbnailUrl: d.thumbnailUrl ? `${BASE_URL}${d.thumbnailUrl}` : null,
+      proofDocumentUrl: d.proofDocumentUrl ? `${BASE_URL}${d.proofDocumentUrl}` : null,
+    }));
+
     return res.status(200).json({
       success: true,
-      danweem,
+      danweem: danweemWithFullUrls,
     });
   } catch (error) {
     console.error("Get All Danweem Error:", error);

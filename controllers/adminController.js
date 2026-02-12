@@ -2,13 +2,25 @@ const Event = require("../models/Event");
 const User = require("../models/User");
 const Danweem = require("../models/Danweem");
 
+// Helper to prepend full URL to media
+const prependBaseUrl = (url) => {
+  const BASE_URL = process.env.BASE_URL || "http://localhost:5000";
+  return url ? `${BASE_URL}${url}` : null;
+};
+
 exports.getPendingEvents = async (req, res) => {
   try {
     const events = await Event.getByStatus("pending");
 
+    const eventsWithFullUrls = events.map(e => ({
+      ...e.toObject ? e.toObject() : e,
+      imageUrl: prependBaseUrl(e.imageUrl),
+      proofDocumentUrl: prependBaseUrl(e.proofDocumentUrl),
+    }));
+
     return res.status(200).json({
       success: true,
-      events,
+      events: eventsWithFullUrls,
       count: events.length,
     });
   } catch (error) {
@@ -24,9 +36,15 @@ exports.getAllEvents = async (req, res) => {
   try {
     const events = await Event.getAll();
 
+    const eventsWithFullUrls = events.map(e => ({
+      ...e.toObject ? e.toObject() : e,
+      imageUrl: prependBaseUrl(e.imageUrl),
+      proofDocumentUrl: prependBaseUrl(e.proofDocumentUrl),
+    }));
+
     return res.status(200).json({
       success: true,
-      events,
+      events: eventsWithFullUrls,
     });
   } catch (error) {
     console.error("Get All Events Error:", error);
