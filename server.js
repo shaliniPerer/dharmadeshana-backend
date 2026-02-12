@@ -13,32 +13,36 @@ const uploadRoutes = require("./routes/uploadRoutes");
 
 const app = express();
 
-// --------------------
-// CORS Middleware
-// --------------------
-// --------------------
-// CORS Middleware (FINAL & SAFE)
-// --------------------
 const allowedOrigins = [
   process.env.FRONTEND_URL || "https://dharmadeshana.lk",
   process.env.ADMIN_FRONTEND_URL || "https://admin.dharmadeshana.lk"
 ];
 
-app.use(cors({
-  origin: function (origin, callback) {
-    // allow server-to-server, Postman, curl
-    if (!origin) return callback(null, true);
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
 
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    }
+  if (!origin || allowedOrigins.includes(origin)) {
+    // If origin is allowed, use cors normally
+    cors({
+      origin: origin || "*", // allow requests with no origin (curl, Postman)
+      credentials: true,
+      methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+      allowedHeaders: ["Content-Type", "Authorization"]
+    })(req, res, next);
+  } else {
+    // Origin not allowed → respond 403, do NOT crash
+    res.status(403).json({ success: false, message: "CORS not allowed for this origin" });
+  }
+});
 
-    return callback(new Error("CORS not allowed"));
-  },
+// Handle preflight OPTIONS globally
+app.options("*", cors({
+  origin: allowedOrigins,
   credentials: true,
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"]
 }));
+
 
 // REQUIRED for preflight
 app.options("*", cors());
