@@ -3,7 +3,8 @@ const { uploadToLocal, uploadMultipleToLocal } = require('../utils/localStorage'
 const { uploadToS3, uploadMultipleToS3 } = require('../utils/s3Upload');
 
 // Determine which storage to use based on environment
-const USE_S3 = process.env.USE_S3 === 'true' || process.env.NODE_ENV === 'production';
+// Respect USE_S3 environment variable - "false" means use local storage even in production
+const USE_S3 = process.env.USE_S3 === 'true';
 
 // Alias for easy switching between local and S3 storage
 const uploadFile = USE_S3 ? uploadToS3 : uploadToLocal;
