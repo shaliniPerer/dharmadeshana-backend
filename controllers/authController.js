@@ -35,7 +35,7 @@ exports.requestOTP = async (req, res) => {
     console.log("Sending SMS...");
     const smsResult = await sendSMS(
       phoneNumber,
-      `Your Dharmadeshana login code is: ${otp}. This code expires in 10 minutes.`
+      `Your Dharmadeshana.lk login code is: ${otp}. This code expires in 10 minutes.`
     );
     console.log("SMS Result:", smsResult);
 
