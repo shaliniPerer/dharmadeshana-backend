@@ -239,6 +239,56 @@ exports.rejectDanweem = async (req, res) => {
   }
 };
 
+// Update danweem (admin only)
+exports.updateDanweem = async (req, res) => {
+  try {
+    const { danweemId } = req.params;
+    const { theroName, title, description, mediaType, mediaUrl, thumbnailUrl, proofDocumentUrl } = req.body;
+
+    // Check if danweem exists
+    const existingDanweem = await Danweem.getById(danweemId);
+    if (!existingDanweem) {
+      return res.status(404).json({
+        success: false,
+        message: "Danweem not found",
+      });
+    }
+
+    // Build updates object
+    const updates = {};
+    if (theroName !== undefined) updates.theroName = theroName;
+    if (title !== undefined) updates.title = title;
+    if (description !== undefined) updates.description = description;
+    if (mediaType !== undefined) updates.mediaType = mediaType;
+    if (mediaUrl !== undefined) updates.mediaUrl = mediaUrl;
+    if (thumbnailUrl !== undefined) updates.thumbnailUrl = thumbnailUrl;
+    if (proofDocumentUrl !== undefined) updates.proofDocumentUrl = proofDocumentUrl;
+
+    await Danweem.update(danweemId, updates);
+
+    // Get updated danweem
+    const updatedDanweem = await Danweem.getById(danweemId);
+    const danweemWithFullUrls = {
+      ...updatedDanweem,
+      mediaUrl: prependBaseUrl(updatedDanweem.mediaUrl),
+      thumbnailUrl: prependBaseUrl(updatedDanweem.thumbnailUrl),
+      proofDocumentUrl: prependBaseUrl(updatedDanweem.proofDocumentUrl),
+    };
+
+    return res.status(200).json({
+      success: true,
+      message: "Danweem updated successfully",
+      danweem: danweemWithFullUrls,
+    });
+  } catch (error) {
+    console.error("Update Danweem Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to update danweem",
+    });
+  }
+};
+
 // Delete danweem
 exports.deleteDanweem = async (req, res) => {
   try {

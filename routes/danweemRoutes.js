@@ -17,5 +17,6 @@ router.get("/admin/pending", protect, adminOnly, danweemController.getPendingDan
 router.get("/admin/all", protect, adminOnly, danweemController.getAllDanweem);
 router.patch("/:danweemId/approve", protect, adminOnly, danweemController.approveDanweem);
 router.patch("/:danweemId/reject", protect, adminOnly, danweemController.rejectDanweem);
+router.put("/:danweemId", protect, adminOnly, danweemController.updateDanweem);
 
 module.exports = router;

@@ -168,3 +168,54 @@ exports.getEventById = async (req, res) => {
     });
   }
 };
+
+// Update event (admin only)
+exports.updateEvent = async (req, res) => {
+  try {
+    const { eventId } = req.params;
+    const { theroName, eventName, date, time, venue, imageUrl, description, sanwidanaya, proofDocumentUrl } = req.body;
+
+    // Check if event exists
+    const existingEvent = await Event.getById(eventId);
+    if (!existingEvent) {
+      return res.status(404).json({
+        success: false,
+        message: "Event not found",
+      });
+    }
+
+    // Build updates object (only include fields that are provided)
+    const updates = {};
+    if (theroName !== undefined) updates.theroName = theroName;
+    if (eventName !== undefined) updates.eventName = eventName;
+    if (date !== undefined) updates.date = date;
+    if (time !== undefined) updates.time = time;
+    if (venue !== undefined) updates.venue = venue;
+    if (imageUrl !== undefined) updates.imageUrl = imageUrl;
+    if (description !== undefined) updates.description = description;
+    if (sanwidanaya !== undefined) updates.sanwidanaya = sanwidanaya;
+    if (proofDocumentUrl !== undefined) updates.proofDocumentUrl = proofDocumentUrl;
+
+    await Event.update(eventId, updates);
+
+    // Get updated event
+    const updatedEvent = await Event.getById(eventId);
+    const eventWithFullUrls = {
+      ...updatedEvent,
+      imageUrl: prependBaseUrl(updatedEvent.imageUrl),
+      proofDocumentUrl: prependBaseUrl(updatedEvent.proofDocumentUrl),
+    };
+
+    return res.status(200).json({
+      success: true,
+      message: "Event updated successfully",
+      event: eventWithFullUrls,
+    });
+  } catch (error) {
+    console.error("Update Event Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to update event",
+    });
+  }
+};
